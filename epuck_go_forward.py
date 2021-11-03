@@ -5,8 +5,6 @@ from math import cos
 from math import sin
 from controller import Compass
 from controller import Robot, Motor
-import sympy as sym
-from sympy.solvers import solve
 TIME_STEP = 64
 
 conv = math.pi / 100
@@ -33,17 +31,11 @@ def ccw_rotation(linear_v, heading):
     
 # question 2 functions:
 
-def inverse_kinematic(linear_v, teta_dot, l, r):
-    x_dot = linear_v[0]
-    y_dot = linear_v[1]
-    sym.init_printing()
-    a, b = sym.symbols('a,b')
-    eq_1 = sym.Eq((a + b) * r / 2, x_dot_r)
-    eq_2 = sym.Eq((a - b) * r / l, theta_dot_r * conv) 
-    res = solve([eq_1, eq_2], (a, b))
-    phi_dot_1, phi_dot_2 = res.values()
-    return [phi_dot_1, phi_dot_2]       
-    
+def inverse_kinematic(x_dot, teta_dot, l, r):
+    phi1_dot = ( (2 * x_dot) - (teta_dot * l) ) / (2 * r)
+    phi2_dot = ( (2 * x_dot) + (teta_dot * l) ) / (2 * r)
+    return [phi1_dot, phi2_dot]
+
 robot = Robot()
 
 # get a handler to the motors and set target position to infinity (speed control)
@@ -73,6 +65,7 @@ rightMotor.setPosition(float('inf'))
 
 # leftMotor.setVelocity(4)
 # rightMotor.setVelocity(4)
+
 
 
 while robot.step(TIME_STEP) != -1:
