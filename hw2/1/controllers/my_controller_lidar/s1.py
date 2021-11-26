@@ -3,6 +3,8 @@ import matplotlib.pyplot as plot
 import math
 import random
 
+from numpy.lib.function_base import append
+
 
 def data_builder(data, degree):
     x_array = []
@@ -94,7 +96,7 @@ def get_most_distanse(data):
 
 
 def split_and_merge(data, threshold):
-    if len(data) < 5:
+    if len(data) < 3:
         return [data]
     d, ind = get_most_distanse(data)
     if d > threshold:
@@ -106,8 +108,38 @@ def split_and_merge(data, threshold):
     else:
         points = [data]
     return points
-
-
+def error_cal(data):
+    dmax = 0
+    temp1 = 0
+    temp2 = len(data) - 1
+    for i in range(temp1 + 1, temp2):
+        m = (data[temp1][1] - data[temp2][1]) / (data[temp1][0] - data[temp2][0])
+        c = (-1 * m) * (data[temp1][0] + data[temp1][1])
+        distance = abs((-1 * m) * data[i][0] + data[i][1] - c) / math.sqrt(m * m + 1)
+        dmax += distance
+    return dmax
+def iterative(data,threshold):
+    final=[]
+    for i in range (0 ,len(data)-1,2):
+        temp1=data[i]
+        temp2=data[i+1]
+        temp4=np.append(temp1,temp2)
+        temp3=[]
+        for j in range(0,len(temp4)-1,2) :
+             temp3.append((temp4[j],temp4[j+1]))
+        e1 = error_cal(temp1)/math.sqrt(pow((temp1[0][0]-temp1[-1][0]),2)+pow((temp1[0][1]-temp1[-1][1]),2))
+        e2 = error_cal(temp2)/math.sqrt(pow((temp2[0][0]-temp2[-1][0]),2)+pow((temp2[0][1]-temp2[-1][1]),2))
+        e3 = error_cal(temp3)/math.sqrt(pow((temp3[0][0]-temp3[-1][0]),2)+pow((temp3[0][1]-temp3[-1][1]),2))
+        if max(e1,e2) > e3:
+            temp3=np.array(temp3)
+            final.append(temp3)
+        else:
+            final.append(temp1)
+            final.append(temp2)   
+    return final
+def line_length(p1, p2):
+    return np.sqrt(abs(p1[0] - p2[0]) * abs(p1[0] - p2[0])
+                   + abs(p1[1] - p2[1]) * abs(p1[1] - p2[1]))
 def main1():
     data = read_from_file()
     degree = 90
@@ -125,19 +157,29 @@ def main1():
     columnIndex = 0
     # Sort 2D numpy array by 2nd Column
     data = data[data[:, columnIndex].argsort()]
-    a = split_and_merge(data, 0.3)
-    plot.scatter(x_np, y_np)
-
+    b = split_and_merge(data, 0.05)
+    #plot.scatter(x_np, y_np)
+    a = [r for r in b if not (len(r) < 3 and line_length(r[0], r[-1]) > 0.2)]
     for i in range(len(a)):
         x1 = a[i][0][0]
         y1 = a[i][0][1]
         x2 = a[i][-1][0]
         y2 = a[i][-1][1]
+        plot.scatter(x_np, y_np)
         plot.plot([x1, x2], [y1, y2], linestyle='-')
 
     # len(a)
 
     plot.show()
-
-
+    c = iterative(a,0.005)
+    for i in range(len(c)):
+        x1 = c[i][0][0]
+        y1 = c[i][0][1]
+        x2 = c[i][-1][0]
+        y2 = c[i][-1][1]
+        plot.plot([x1, x2], [y1, y2], linestyle='-')
+    plot.scatter(x_np, y_np)
+    plot.show()
+    print("hello")
 main1()
+
