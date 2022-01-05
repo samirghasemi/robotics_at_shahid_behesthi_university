@@ -177,7 +177,7 @@ def update_robot_state():
     # updating the currnet robot position
     robot_position[0] = gps_values[0]
     robot_position[1] = gps_values[1]
-
+    print(robot_position)
 def update_motor_speed(input_omega=robot_omega):
     motor_1.setVelocity(input_omega[0])
     motor_2.setVelocity(input_omega[1])
